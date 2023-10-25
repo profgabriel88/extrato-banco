@@ -33,6 +33,8 @@ export interface NovoExtrato {
 export class ExtratoTableComponent implements OnInit {
   extratos: Extrato[] = [];
   novo = false;
+  inicioPicker: Date = new Date();
+  fimPicker: Date = new Date();
   total: number = 0;
   editando: boolean = false;
   dataSource = new MatTableDataSource<Extrato>();
@@ -49,15 +51,17 @@ export class ExtratoTableComponent implements OnInit {
   constructor (private httpService: HttpServiceService, private fb: FormBuilder) {}
 
   ngOnInit(): void {
+    this.fimPicker.setDate(this.fimPicker.getDate() + 2);
     this.carregaTabela();
   }
 
   carregaTabela() {
     this.total = 0;
-    var inicio = new Date();
-    var inicioString = inicio.toLocaleString().substr(0, 10);
+    var inicioString = this.inicioPicker.toLocaleString().substr(0, 10);
+    console.log(this.fimPicker);
+    var fimString = this.fimPicker == undefined ? '' : this.fimPicker.toLocaleString().substr(0, 10);
     this.httpService
-      .getExtratos(inicioString, '')
+      .getExtratos(inicioString, fimString)
       .subscribe(data => {
         this.extratos = data;
         this.extratos.forEach(e => {

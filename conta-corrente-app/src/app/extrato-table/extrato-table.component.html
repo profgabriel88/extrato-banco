@@ -1,4 +1,20 @@
 <app-navbar [valor]="total" [novo]="novo" (criaNovoRegistro)="onCriaNovoContato($event)"></app-navbar>
+<div class="filtro">
+  <mat-form-field class="mx-2">
+    <mat-label>Início</mat-label>
+    <input (change)="carregaTabela()" (dateChange)="carregaTabela()" [(ngModel)]="inicioPicker" matInput [matDatepicker]="picker1">
+    <mat-datepicker-toggle matIconSuffix [for]="picker1"></mat-datepicker-toggle>
+    <mat-datepicker #picker1  ></mat-datepicker>
+  </mat-form-field>
+
+  <mat-form-field>
+    <mat-label>Fim</mat-label>
+    <input (change)="carregaTabela()" (dateChange)="carregaTabela()" [(ngModel)]="fimPicker" matInput [matDatepicker]="picker2">
+    <mat-datepicker-toggle matIconSuffix [for]="picker2"></mat-datepicker-toggle>
+    <mat-datepicker #picker2></mat-datepicker>
+  </mat-form-field>
+
+</div>
 <div class="flex-container">
   <div class="mat-elevation-z8">
     <table mat-table [dataSource]="dataSource" class="mat-elevation-z8 demo-table">
