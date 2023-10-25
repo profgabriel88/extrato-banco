@@ -1,7 +1,6 @@
 ﻿using System.Diagnostics;
 using ContaCorrente.Domain;
 using ContaCorrenteServices.Interfaces;
-using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 
 namespace conta_corrente_api.Controllers;
@@ -20,10 +19,9 @@ public class ExtratoController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<List<Extrato>> GetExtratos()
+    public async Task<List<Extrato>> GetExtratos([FromQuery] string inicio, [FromQuery] string? fim)
     {
-        var extratos = await _extratoService.GetExtratos();
-        return extratos;
+        return await _extratoService.GetExtratosByDate(inicio, fim);
     }
 
     [HttpPost]

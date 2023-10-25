@@ -1,14 +1,28 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { HttpServiceService } from '../services/http-service.service';
+import { MatTableDataSource } from '@angular/material/table';
+import {MatPaginator, MatPaginatorModule} from '@angular/material/paginator';
+import { FormGroup, FormBuilder, FormControl, Validators } from '@angular/forms';
 
 export interface Extrato {
-  Id:  string;
-  Descricao:  string;
-  Data:  Date;
-  Valor:  number;
-  Avulso:  boolean;
-  Status:  string;
+  id:  string;
+  descricao:  string;
+  data:  Date;
+  valor:  number;
+  avulso:  boolean;
+  avulsoTexto?: string;
+  status:  string;
 }
+
+export interface NovoExtrato {
+  id?:  string;
+  descricao:  string;
+  data:  Date;
+  valor:  number;
+  avulso:  boolean;
+  status:  string;
+}
+
 
 @Component({
   selector: 'app-extrato-table',
@@ -18,20 +32,104 @@ export interface Extrato {
 
 export class ExtratoTableComponent implements OnInit {
   extratos: Extrato[] = [];
+  novo = false;
+  total: number = 0;
+  editando: boolean = false;
+  dataSource = new MatTableDataSource<Extrato>();
+  selectedRow!: Extrato;
+  displayedColumns: string[] = ['Descricao', 'Data', 'Valor', 'Avulsa', 'Status', 'Acoes'];
 
-  displayedColumns: string[] = ['Descricao', 'Data', 'Valor'];
-  constructor (private httpService: HttpServiceService) {}
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
+  public form!: FormGroup;
+
+  get f(): any {
+    return this.form.controls;
+  }
+
+  constructor (private httpService: HttpServiceService, private fb: FormBuilder) {}
 
   ngOnInit(): void {
+    this.carregaTabela();
+  }
+
+  carregaTabela() {
+    this.total = 0;
     var inicio = new Date();
     var inicioString = inicio.toLocaleString().substr(0, 10);
     this.httpService
       .getExtratos(inicioString, '')
       .subscribe(data => {
         this.extratos = data;
-        console.log(this.extratos);
+        this.extratos.forEach(e => {
+          e.avulso ? e.avulsoTexto = 'Avulsa' : e.avulsoTexto = 'Não avulsa';
+          this.total += e.valor;
+        });
+        this.dataSource.paginator = this.paginator;
+        this.dataSource.data = this.extratos;
       });
   }
 
+  public validaForm() {
+    this.form = this.fb.group({
+      descricao: [''],
+      status: [''],
+      valor:['']
+    })
+  }
+
+  onCriaNovoContato(novo: boolean) {
+    this.novo = novo;
+    this.validaForm();
+  }
+
+
+  editExtrato(row: any) {
+    console.log('edita');
+    this.selectedRow = row;
+    this.editando = true;
+    this.validaForm();
+    this.f.descricao.value = row.descricao;
+    this.f.status.value = row.status;
+    this.f.valor.value = row.valor;
+  }
+
+  salvaExtrato() {
+    var novoExtrato: NovoExtrato = {
+      id: this.selectedRow.id,
+      descricao: this.f.descricao.value,
+      data: this.selectedRow.data,
+      valor: this.selectedRow.valor,
+      avulso: this.selectedRow.avulsoTexto == 'Avulsa' ? true : false,
+      status: this.selectedRow.status,
+    }
+
+    this.httpService.editExtrato(novoExtrato).subscribe(response => {
+      this.carregaTabela();
+      this.editando = false;
+    });
+  }
+
+  criaExtrato() {
+    var novoExtrato: NovoExtrato = {
+      descricao: this.f.descricao.value,
+      data: new Date(),
+      valor: this.f.valor.value,
+      avulso: true,
+      status: this.f.status.value,
+    }
+
+    this.httpService.createExtrato(novoExtrato).subscribe(response => {
+      this.carregaTabela();
+      this.novo = false;
+    });
+  }
+
+  cancelaExtrato(event: any, element: any) {
+    event.stopPropagation();
+    this.httpService.cancelExtrato(element.id).subscribe(response => {
+      this.carregaTabela();
+      this.editando = false;
+    });
+  }
 
 }

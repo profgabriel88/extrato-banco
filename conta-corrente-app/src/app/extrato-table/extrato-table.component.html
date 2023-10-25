@@ -1,24 +1,101 @@
-<table mat-table [dataSource]="extratos" class="mat-elevation-z8">
+<app-navbar [valor]="total" [novo]="novo" (criaNovoRegistro)="onCriaNovoContato($event)"></app-navbar>
+<div class="flex-container">
+  <div class="mat-elevation-z8">
+    <table mat-table [dataSource]="dataSource" class="mat-elevation-z8 demo-table">
 
-  <!-- Name Column -->
-  <ng-container matColumnDef="Descricao">
-    <th mat-header-cell *matHeaderCellDef> Descricao </th>
-    <td mat-cell *matCellDef="let element"> {{element.descricao}} </td>
-  </ng-container>
+      <!-- Name Column -->
+      <ng-container matColumnDef="Descricao">
+        <th mat-header-cell *matHeaderCellDef> Descricao </th>
+        <td mat-cell *matCellDef="let element"> {{element.descricao}} </td>
+      </ng-container>
 
-  <!-- Weight Column -->
-  <ng-container matColumnDef="Data">
-    <th mat-header-cell *matHeaderCellDef> Data </th>
-    <td mat-cell *matCellDef="let element"> {{element.data}} </td>
-  </ng-container>
+      <!-- Weight Column -->
+      <ng-container matColumnDef="Data">
+        <th mat-header-cell *matHeaderCellDef> Data </th>
+        <td mat-cell *matCellDef="let element"> {{element.data | date:"dd/MM/yyyy"}} </td>
+      </ng-container>
 
-  <!-- Symbol Column -->
-  <ng-container matColumnDef="Valor">
-    <th mat-header-cell *matHeaderCellDef> Valor </th>
-    <td mat-cell *matCellDef="let element"> {{element.valor}} </td>
-  </ng-container>
+      <!-- Symbol Column -->
+      <ng-container matColumnDef="Valor">
+        <th mat-header-cell *matHeaderCellDef> Valor </th>
+        <td mat-cell *matCellDef="let element"> {{element.valor | number: '1.2-2'}} </td>
+      </ng-container>
 
-  <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-  <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-</table>
+      <ng-container matColumnDef="Avulsa">
+        <th mat-header-cell *matHeaderCellDef> Avulsa </th>
+        <td mat-cell *matCellDef="let element"> {{element.avulsoTexto}} </td>
+      </ng-container>
 
+      <ng-container matColumnDef="Status">
+        <th mat-header-cell *matHeaderCellDef> Status </th>
+        <td mat-cell *matCellDef="let element"> {{element.status}} </td>
+      </ng-container>
+
+      <ng-container matColumnDef="Acoes">
+        <th mat-header-cell *matHeaderCellDef> Ações </th>
+        <td mat-cell *matCellDef="let element">
+          <button class="btn btn-sm btn-danger" (click)="cancelaExtrato($event, element);"
+            *ngIf="element.status != 'Cancelado'">cancelar</button>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row (click)="editExtrato(row)" *matRowDef="let row; columns: displayedColumns;"></tr>
+    </table>
+    <mat-paginator [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons aria-label="Select page of periodic elements">
+    </mat-paginator>
+  </div>
+
+  <div *ngIf="editando">
+    <div>
+
+      <form [formGroup]="form">
+        <div class="offset-md-1 col-md-11">
+          <label for="descricao">Descrição</label>
+          <input formControlName="descricao" class="form-control my-2" type="text">
+          <label for="status">Status</label>
+          <input formControlName="status" class="form-control my-2" type="text" readonly>
+          <label for="valor">Valor</label>
+          <input formControlName="valor" class="form-control my-2" type="text" readonly>
+        </div>
+        <div style="display: flex; margin-left: auto;">
+          <button class="btn btn-sm btn-outline-success" (click)="salvaExtrato();">
+            Salvar
+          </button>
+          <button class="btn btn-sm btn-outline-danger" (click)="editando=false;">
+            Sair
+          </button>
+        </div>
+      </form>
+    </div>
+
+  </div>
+
+  <div *ngIf="novo">
+    <div>
+      <form [formGroup]="form">
+        <div class="offset-md-1 col-md-11">
+          <label for="descricao">Descrição</label>
+          <input formControlName="descricao" class="form-control my-2" type="text">
+          <label for="status">Status</label>
+          <select formControlName="status" class="form-control my-2">
+            <option value="Cancelado">Cancelado</option>
+            <option value="Válido">Válido</option>
+          </select>
+          <label for="valor">Valor</label>
+          <input formControlName="valor" class="form-control my-2" type="text">
+        </div>
+        <div style="display: flex; margin-left: auto;">
+          <button class="btn btn-sm btn-outline-success" (click)="criaExtrato();">
+            Salvar
+          </button>
+          <button class="btn btn-sm btn-outline-danger" (click)="novo=false;">
+            Sair
+          </button>
+        </div>
+      </form>
+    </div>
+
+  </div>
+
+</div>

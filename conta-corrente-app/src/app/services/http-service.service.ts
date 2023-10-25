@@ -22,7 +22,8 @@ export class HttpServiceService {
 
 
     return this.http.get<any>(
-      `${this.url}`
+      `${this.url}`,
+      { params : params }
     );
   }
 
@@ -36,8 +37,7 @@ export class HttpServiceService {
 
   public cancelExtrato(extratoId: any): Observable<any> {
     return this.http.put<any>(
-      `${this.url}`,
-      { params : new HttpParams().set('extratoId', extratoId) }
+      `${this.url}/cancel?extratoId=${extratoId}`, null
     );
   }
 }
