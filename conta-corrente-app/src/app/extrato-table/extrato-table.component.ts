@@ -83,6 +83,7 @@ export class ExtratoTableComponent implements OnInit {
 
   onCriaNovoContato(novo: boolean) {
     this.novo = novo;
+    this.editando = false;
     this.validaForm();
   }
 
@@ -91,6 +92,7 @@ export class ExtratoTableComponent implements OnInit {
     console.log('edita');
     this.selectedRow = row;
     this.editando = true;
+    this.novo = false;
     this.validaForm();
     this.f.descricao.value = row.descricao;
     this.f.status.value = row.status;
